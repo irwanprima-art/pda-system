@@ -1,0 +1,31 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration {
+    public function up(): void
+    {
+        Schema::create('pda_transactions', function (Blueprint $table) {
+            $table->id();
+
+            $table->foreignId('pda_id')->constrained('pdas');
+            $table->foreignId('employee_id')->constrained('employees');
+
+            $table->timestamp('borrowed_at');
+            $table->timestamp('returned_at')->nullable();
+
+            $table->integer('duration_minutes')->nullable();
+
+            $table->enum('status', ['borrowed', 'returned', 'overdue'])->default('borrowed');
+
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('pda_transactions');
+    }
+};

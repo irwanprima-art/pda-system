@@ -1,0 +1,64 @@
+services:
+  # PHP Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pda-app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./storage:/var/www/html/storage
+      - ./database:/var/www/html/database
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - pda-network
+
+  # Nginx Web Server
+  nginx:
+    image: nginx:alpine
+    container_name: pda-nginx
+    restart: unless-stopped
+    ports:
+      - "8090:80"
+    volumes:
+      - ./public:/var/www/html/public:ro
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    networks:
+      - pda-network
+
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: pda-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: pda_system
+      MYSQL_USER: pda_user
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secretpassword}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pda-network
+
+networks:
+  pda-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
