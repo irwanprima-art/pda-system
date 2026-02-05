@@ -4,7 +4,7 @@ FROM node:20-alpine AS frontend
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 COPY vite.config.js ./
 COPY resources ./resources
