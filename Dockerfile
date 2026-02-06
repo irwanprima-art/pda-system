@@ -65,6 +65,7 @@ RUN composer dump-autoload --optimize
 RUN mkdir -p storage/framework/{cache,sessions,views} \
     && mkdir -p storage/logs \
     && mkdir -p bootstrap/cache \
+    && rm -f bootstrap/cache/*.php \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
