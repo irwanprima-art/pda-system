@@ -7,11 +7,10 @@ while ! nc -z mysql 3306; do
 done
 echo "==> MySQL is ready!"
 
-echo "==> Clearing Laravel caches..."
-php artisan config:clear
-php artisan cache:clear
-php artisan view:clear
-php artisan route:clear
+echo "==> Clearing config cache..."
+php artisan config:clear || true
+php artisan route:clear || true
+php artisan view:clear || true
 
 echo "==> Running migrations..."
 php artisan migrate --force
@@ -23,3 +22,4 @@ php artisan view:cache
 
 echo "==> Starting PHP-FPM..."
 exec php-fpm
+
