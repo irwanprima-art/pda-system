@@ -27,6 +27,7 @@ RUN apk add --no-cache \
     unzip \
     oniguruma-dev \
     icu-dev \
+    netcat-openbsd \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
         pdo_mysql \
@@ -70,7 +71,11 @@ RUN mkdir -p storage/framework/{cache,sessions,views} \
 # PHP production optimizations
 COPY docker/php.ini /usr/local/etc/php/conf.d/custom.ini
 
+# Copy startup script
+COPY docker/start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
+
 # Expose port 9000 for PHP-FPM
 EXPOSE 9000
 
-CMD ["php-fpm"]
+CMD ["/usr/local/bin/start.sh"]
